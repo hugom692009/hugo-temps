@@ -1,0 +1,9 @@
+{
+  "name": "HUGO TEMPS",
+  "short_name": "HUGO TEMPS",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d120f",
+  "theme_color": "#101512",
+  "lang": "fr"
+}

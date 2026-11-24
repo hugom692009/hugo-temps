@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hugo Temps">
+<link rel="manifest" href="manifest.webmanifest">
+<title>HUGO TEMPS</title>
+<style>
+:root{color-scheme:dark;--bg:#0d120f;--panel:#171f1a;--panel2:#202b24;--green:#55df85;--muted:#a8b5ac;--text:#f2f7f3;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 15px calc(24px + env(safe-area-inset-bottom))}
+main{max-width:720px;margin:auto}header{padding:21px 3px 15px;display:flex;align-items:center;justify-content:space-between}h1{font-size:22px;letter-spacing:1.5px;margin:0}h1 span{color:var(--green)}.badge{font-size:11px;color:var(--green);border:1px solid #2c6942;border-radius:20px;padding:6px 9px}
+.card{background:var(--panel);border:1px solid #29372e;border-radius:18px;padding:17px;margin:12px 0}.timer{text-align:center;padding:22px 16px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.time{font-size:clamp(42px,12vw,64px);font-weight:750;letter-spacing:1px;font-variant-numeric:tabular-nums;margin:10px 0 16px}
+label{display:block;text-align:left;color:var(--muted);font-size:13px;margin:12px 0 5px}input,textarea,select{width:100%;border:1px solid #35453a;border-radius:11px;background:#0f1712;color:var(--text);padding:12px;font:inherit;outline:none}textarea{min-height:68px;resize:vertical}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:100px}button{border:0;border-radius:12px;padding:13px 14px;font-size:14px;font-weight:700;cursor:pointer;background:var(--green);color:#07120b;margin-top:12px}.secondary{background:var(--panel2);color:var(--text);border:1px solid #35453a}.danger{background:#452426;color:#ffdede}.tabs{display:flex;gap:8px;margin:14px 0}.tab{flex:1;background:var(--panel);color:var(--muted);border:1px solid #29372e}.tab.active{background:#1d3827;color:var(--green);border-color:#39784d}
+.entry{padding:13px;border-radius:13px;background:#111914;margin:10px 0;border:1px solid #29372e}.entrytop{display:flex;justify-content:space-between;gap:10px}.entry strong{font-size:15px}.duration{color:var(--green);font-weight:750;white-space:nowrap}.sub{color:var(--muted);font-size:12px;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}.smallbtn{padding:8px 10px;margin:8px 5px 0 0;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#111914;border-radius:13px;padding:13px}.stat b{display:block;font-size:23px;color:var(--green);margin-top:5px}.muted,.note{color:var(--muted)}.note{font-size:12px;line-height:1.5}.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}.hidden{display:none!important}.sectiontitle{font-size:17px;margin:4px 0 12px}
+@media print{body{background:white;color:black;padding:0}.no-print,header,.tabs,button{display:none!important}.card,.entry{background:white;color:black;border:1px solid #bbb;break-inside:avoid}.sub,.muted,.label{color:#444}.duration,.stat b{color:#111}}
+</style>
+</head>
+<body><main>
+<header><h1>HUGO <span>TEMPS</span></h1><div class="badge">● SUR CET IPHONE</div></header>
+<section class="card timer">
+<div class="label">Chronomètre</div><div id="clock" class="time">00:00:00</div>
+<label>Description de l'activité</label><textarea id="description" placeholder="Ex. : remplacement d'un flexible hydraulique..."></textarea>
+<div class="row"><div><label>Catégorie</label><select id="category"></select></div><div><label>Date</label><input id="date" type="date"></div></div>
+<div class="row"><button id="start">▶ Démarrer</button><button id="pause" class="secondary" disabled>Ⅱ Pause</button><button id="stop" class="danger" disabled>■ Terminer</button></div>
+<p id="status" class="note">Prêt à enregistrer une activité.</p>
+</section>
+<div class="tabs no-print"><button class="tab active" data-tab="history">Historique</button><button class="tab" data-tab="stats">Bilan</button><button class="tab" data-tab="settings">Réglages</button></div>
+<section id="history" class="card"><h2 class="sectiontitle">Historique des activités</h2>
+<div class="row no-print"><input id="filter" type="month" aria-label="Filtrer par mois"><button id="clearFilter" class="secondary">Tout voir</button></div>
+<div id="entries"></div><div class="row no-print"><button id="csv" class="secondary">Exporter Excel (CSV)</button><button id="pdf" class="secondary">Exporter PDF</button></div>
+<p class="note no-print">Pour le PDF, utilise « Imprimer » puis « Enregistrer dans Fichiers » dans le menu de partage de l'iPhone.</p></section>
+<section id="stats" class="card hidden"><h2 class="sectiontitle">Bilan général</h2><div class="stats"><div class="stat"><span class="muted">Temps cumulé</span><b id="total">0 min</b></div><div class="stat"><span class="muted">Activités</span><b id="count">0</b></div></div><h3 class="sectiontitle" style="margin-top:20px">Temps par catégorie</h3><div id="bycat"></div></section>
+<section id="settings" class="card hidden"><h2 class="sectiontitle">Mes catégories</h2><p class="note">Crée et supprime tes propres catégories.</p><div class="row"><input id="newcat" placeholder="Nouvelle catégorie"><button id="addcat">Ajouter</button></div><div id="cats"></div><hr style="border-color:#29372e;margin:20px 0"><h2 class="sectiontitle">Sauvegarde</h2><p class="note">Les données restent dans le stockage local de ce navigateur. Exporte régulièrement une sauvegarde pour ne pas les perdre.</p><button id="backup" class="secondary" style="width:100%">Télécharger une sauvegarde</button><button id="restoreBtn" class="secondary" style="width:100%">Importer une sauvegarde</button><input id="restore" type="file" accept=".json,application/json" class="hidden"><button id="wipe" class="danger" style="width:100%">Effacer tous les relevés</button></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const defaultCats=["Mécanique","Hydraulique","Entretien","Réparation","Autres"];
+let entries=JSON.parse(localStorage.getItem("ht_entries")||"[]");
+let cats=JSON.parse(localStorage.getItem("ht_cats")||"null")||defaultCats.slice();
+let startedAt=null,elapsed=0,paused=false,timer=null;
+const today=()=>new Date().toLocaleDateString("en-CA");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const save=()=>{localStorage.setItem("ht_entries",JSON.stringify(entries));localStorage.setItem("ht_cats",JSON.stringify(cats))};
+const format=ms=>{let n=Math.floor(ms/1000),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(v=>String(v).padStart(2,"0")).join(":")};
+const nice=ms=>{let n=Math.round(ms/60000),h=Math.floor(n/60),m=n%60;return h?`${h} h ${String(m).padStart(2,"0")} min`:`${m} min`};
+function fillCats(){let old=$("category").value;$("category").innerHTML=cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");if(cats.includes(old))$("category").value=old;$("cats").innerHTML=cats.map((c,i)=>`<div class="entry">${esc(c)} <button class="smallbtn danger" onclick="removeCat(${i})">Supprimer</button></div>`).join("")}
+function updateClock(){ $("clock").textContent=format(elapsed+(startedAt&&!paused?Date.now()-startedAt:0)) }
+function resetTimer(){clearInterval(timer);startedAt=null;elapsed=0;paused=false;$("clock").textContent="00:00:00";$("start").disabled=false;$("start").textContent="▶ Démarrer";$("pause").disabled=true;$("pause").textContent="Ⅱ Pause";$("stop").disabled=true}
+$("date").value=today();fillCats();
+$("start").onclick=()=>{if(!$("description").value.trim()){alert("Ajoute une description avant de démarrer.");$("description").focus();return}if(startedAt===null){startedAt=Date.now();paused=false;timer=setInterval(updateClock,250);$("start").disabled=true;$("pause").disabled=false;$("stop").disabled=false;$("status").textContent="Chronomètre en cours…"}};
+$("pause").onclick=()=>{if(!paused){elapsed+=Date.now()-startedAt;paused=true;clearInterval(timer);$("pause").textContent="▶ Reprendre";$("status").textContent="Chronomètre en pause."}else{startedAt=Date.now();paused=false;timer=setInterval(updateClock,250);$("pause").textContent="Ⅱ Pause";$("status").textContent="Chronomètre en cours…"}updateClock()};
+$("stop").onclick=()=>{let ms=elapsed+(startedAt&&!paused?Date.now()-startedAt:0);if(ms<1000&&!confirm("Enregistrer cette durée très courte ?"))return;entries.unshift({id:Date.now(),description:$("description").value.trim(),category:$("category").value,date:$("date").value||today(),duration:ms});save();$("description").value="";$("date").value=today();resetTimer();$("status").textContent="Activité enregistrée.";render()};
+function render(){let f=$("filter").value,list=entries.filter(x=>!f||x.date.startsWith(f));$("entries").innerHTML=list.length?list.map(x=>`<article class="entry"><div class="entrytop"><strong>${esc(x.description)}</strong><span class="duration">${nice(x.duration)}</span></div><div class="sub">${esc(x.category)} · ${esc(x.date)} · ${format(x.duration)}</div><button class="smallbtn secondary" onclick="editEntry(${x.id})">Modifier</button><button class="smallbtn danger" onclick="deleteEntry(${x.id})">Supprimer</button></article>`).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
+let sum=entries.reduce((a,x)=>a+x.duration,0);$("total").textContent=nice(sum);$("count").textContent=entries.length;$("bycat").innerHTML=cats.map(c=>{let n=entries.filter(x=>x.category===c).reduce((a,x)=>a+x.duration,0);return `<div class="entry"><div class="entrytop"><strong>${esc(c)}</strong><span class="duration">${nice(n)}</span></div></div>`}).join("")}
+window.editEntry=id=>{let x=entries.find(e=>e.id===id);if(!x)return;let desc=prompt("Description :",x.description);if(desc===null)return;let cat=prompt("Catégorie :",x.category);if(cat===null)return;let date=prompt("Date (AAAA-MM-JJ) :",x.date);if(date===null)return;let mins=prompt("Durée en minutes :",String(Math.round(x.duration/60000)));if(mins===null)return;if(!Number.isFinite(Number(mins))||Number(mins)<0){alert("Durée invalide.");return}x.description=desc;x.category=cat;x.date=date;x.duration=Number(mins)*60000;if(!cats.includes(cat))cats.push(cat);save();fillCats();render()};
+window.deleteEntry=id=>{if(confirm("Supprimer ce relevé ?")){entries=entries.filter(x=>x.id!==id);save();render()}};
+window.removeCat=i=>{if(cats.length<2){alert("Il faut conserver au moins une catégorie.");return}if(confirm("Supprimer cette catégorie ? Les relevés existants sont conservés.")){cats.splice(i,1);save();fillCats();render()}};
+$("addcat").onclick=()=>{let c=$("newcat").value.trim();if(!c)return;if(cats.some(x=>x.toLowerCase()===c.toLowerCase())){alert("Cette catégorie existe déjà.");return}cats.push(c);$("newcat").value="";save();fillCats();render()};
+$("filter").onchange=render;$("clearFilter").onclick=()=>{$("filter").value="";render()};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));["history","stats","settings"].forEach(id=>$(id).classList.toggle("hidden",id!==b.dataset.tab))});
+function download(name,content,type){let u=URL.createObjectURL(new Blob([content],{type})),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+$("csv").onclick=()=>{let rows=[["Date","Catégorie","Description","Durée (minutes)"],...entries.map(x=>[x.date,x.category,x.description,Math.round(x.duration/60000)])];download("hugo-temps.csv","\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n"),"text/csv;charset=utf-8")};
+$("pdf").onclick=()=>window.print();
+$("backup").onclick=()=>download("hugo-temps-sauvegarde.json",JSON.stringify({entries,cats},null,2),"application/json");
+$("restoreBtn").onclick=()=>$("restore").click();
+$("restore").onchange=async e=>{try{let o=JSON.parse(await e.target.files[0].text());if(!Array.isArray(o.entries)||!Array.isArray(o.cats))throw 0;if(confirm("Remplacer les données actuelles par la sauvegarde ?")){entries=o.entries;cats=o.cats;save();fillCats();render();alert("Sauvegarde importée.")}}catch(_){alert("Fichier invalide.")}e.target.value=""};
+$("wipe").onclick=()=>{if(confirm("Effacer définitivement tous les relevés ?")){entries=[];save();render()}};
+render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script></body></html>

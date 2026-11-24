@@ -1,0 +1,17 @@
+HUGO TEMPS — première version
+
+Contenu :
+- Chronomètre avec démarrer / pause / reprise / terminer
+- Description, date et catégorie pour chaque relevé
+- Historique, modification et suppression
+- Catégories personnalisables
+- Bilan par catégorie
+- Export CSV compatible Excel / Numbers
+- Impression vers PDF
+- Sauvegarde et restauration JSON
+- Stockage local dans le navigateur
+
+IMPORTANT POUR IPHONE :
+Le dossier contient les fichiers de l'application, mais pour l'ajouter comme une vraie icône d'application et activer le mode hors ligne, les fichiers doivent être publiés sur une adresse HTTPS. Un fichier HTML ouvert depuis l'app Fichiers n'est pas une installation iOS complète.
+Après publication, ouvre l'adresse dans Safari, touche le bouton Partager, puis « Sur l'écran d'accueil ».
+Les relevés sont stockés dans le navigateur de l'appareil. Ne supprime pas les données du site et exporte régulièrement une sauvegarde JSON ou CSV.
